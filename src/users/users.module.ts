@@ -10,6 +10,9 @@ import { UserEntity } from './users.entity';
       UserEntity
     ])
   ],
+  exports: [
+    UsersService
+  ],
   controllers: [UsersController],
   providers: [UsersService],
 })
