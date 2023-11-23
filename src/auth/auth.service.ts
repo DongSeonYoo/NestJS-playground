@@ -27,8 +27,20 @@ export class AuthService {
 		}
 	}
 
-	async login(loginUserDTO: LoginUserDTO) {
-		const { email, password } = loginUserDTO;
+	// async login(loginUserDTO: LoginUserDTO) {
+	// 	const { email, password } = loginUserDTO;
+
+	// 	try {
+	// 		const foundUser = await this.userServices.getByEmail(email);
+	// 		await this.comparePassword(password, foundUser.password);
+
+	// 		return foundUser;
+	// 	} catch (error) {
+	// 		throw new BadRequestException('아이디 또는 비밀번호가 올바르지 않습니다');
+	// 	}
+	// }
+
+	async login(email: string, password: string) {
 
 		try {
 			const foundUser = await this.userServices.getByEmail(email);
@@ -39,6 +51,7 @@ export class AuthService {
 			throw new BadRequestException('아이디 또는 비밀번호가 올바르지 않습니다');
 		}
 	}
+
 
 	async comparePassword(plainPassword: string, hashedPassword: string) {
 		const passwordMatch = await bcrypt.compare(plainPassword, hashedPassword);
