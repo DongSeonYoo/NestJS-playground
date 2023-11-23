@@ -1,9 +1,11 @@
-import { Body, Controller, Post, Req, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { LocalAuthenticationGuard } from './guard/local.guard';
-import { RequestWithUser } from './request-user.interface';
-import { LoginUserDTO } from './dto/login-user.dto';
+import { Response } from 'express';
+import { UserDecorator } from './decorator/user-info.decorator';
+import { UserEntity } from 'src/users/users.entity';
+import { JwtAuthGuard } from './guard/jwt.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -27,8 +29,18 @@ export class AuthController {
   @Post('login')
   @UseGuards(LocalAuthenticationGuard)
   login(
-    @Request() req
+    @UserDecorator() user: UserEntity,
+    @Res() res
   ) {
-    return req.user;
+    const accessToken = this.authService.signAccessToken(user);
+    res.cookie('accessToken', accessToken);
+
+    return res.status(200).send();
+  }
+
+  @Get('profile')
+  @UseGuards(JwtAuthGuard)
+  getProfile(@UserDecorator() user: UserEntity) {
+    return user;
   }
 }

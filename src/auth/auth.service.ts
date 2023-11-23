@@ -1,15 +1,26 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Req } from '@nestjs/common';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
 import { POSTGRES_ERROR_CODE } from 'src/common/database/postgres-errorcode';
 import { LoginUserDTO } from './dto/login-user.dto';
+import { JwtService } from '@nestjs/jwt';
+import { UserEntity } from 'src/users/users.entity';
 
 @Injectable()
 export class AuthService {
 	constructor(
-		private readonly userServices: UsersService
+		private readonly userServices: UsersService,
+		private readonly jwtServices: JwtService
 	) { }
+
+	async tokenValidate(payload: any) {
+		return await this.userServices.getUserById(payload.id);
+	}
+
+	getUserById(userId: number) {
+		return this.userServices.getUserById(userId);
+	}
 
 	async register(createUserDTO: CreateUserDto) {
 		const hashedPassword = await bcrypt.hash(createUserDTO.password, 10);
@@ -41,15 +52,25 @@ export class AuthService {
 	// }
 
 	async login(email: string, password: string) {
-
 		try {
 			const foundUser = await this.userServices.getByEmail(email);
 			await this.comparePassword(password, foundUser.password);
 
 			return foundUser;
+
 		} catch (error) {
+			console.log(error)
 			throw new BadRequestException('아이디 또는 비밀번호가 올바르지 않습니다');
 		}
+	}
+
+	signAccessToken(user: UserEntity) {
+		const payload = {
+			id: user.id,
+			email: user.email
+		};
+
+		return this.jwtServices.sign(payload);
 	}
 
 

@@ -11,6 +11,19 @@ export class UsersService {
 		private readonly userRepository: Repository<UserEntity>
 	) { }
 
+	async getUserById(userId: number) {
+		const foundUser = await this.userRepository.findOne({
+			where: {
+				id: userId
+			}
+		});
+		if (!foundUser) {
+			throw new NotFoundException('해당하는 사용자가 없습니다');
+		}
+
+		return foundUser;
+	}
+
 	async getByEmail(email: string) {
 		const user = await this.userRepository.findOne({
 			where: {
