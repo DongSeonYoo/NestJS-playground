@@ -22,7 +22,7 @@ export class AuthService {
 		return this.userServices.getUserById(userId);
 	}
 
-	async register(createUserDTO: CreateUserDto) {
+	async registerUser(createUserDTO: CreateUserDto) {
 		const hashedPassword = await bcrypt.hash(createUserDTO.password, 10);
 
 		try {
@@ -51,26 +51,26 @@ export class AuthService {
 	// 	}
 	// }
 
-	async login(email: string, password: string) {
+	async login(loginUserDTO: LoginUserDTO): Promise<UserEntity> {
 		try {
-			const foundUser = await this.userServices.getByEmail(email);
+			const { email, password } = loginUserDTO;
+			const foundUser = await this.userServices.getUserByEmail(email);
 			await this.comparePassword(password, foundUser.password);
 
 			return foundUser;
 
 		} catch (error) {
-			console.log(error)
 			throw new BadRequestException('아이디 또는 비밀번호가 올바르지 않습니다');
 		}
 	}
 
-	signAccessToken(user: UserEntity) {
+	signAccessToken(user: Pick<UserEntity, 'id' | 'email'>): string {
 		const payload = {
 			id: user.id,
 			email: user.email
 		};
-
-		return this.jwtServices.sign(payload);
+		const token = this.jwtServices.sign(payload);
+		return `Authentication=${token}; HttpOnly; Path=/; Max-Age=600s`;
 	}
 
 
@@ -80,5 +80,7 @@ export class AuthService {
 		if (!passwordMatch) {
 			throw new BadRequestException('아이디 또는 비밀번호가 올바르지 않습니다');
 		}
+
+		return passwordMatch;
 	}
 }
