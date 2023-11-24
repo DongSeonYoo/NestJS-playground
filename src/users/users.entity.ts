@@ -1,3 +1,4 @@
+import { Exclude, Expose } from "class-transformer";
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({
@@ -16,5 +17,8 @@ export class UserEntity {
 	name: string;
 
 	@Column()
+	@Exclude({
+		toPlainOnly: true
+	})
 	password: string;
 }
