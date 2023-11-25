@@ -7,6 +7,8 @@ import { plainToInstance } from 'class-transformer';
 import { CreatePostResponseDTO } from './dto/create-post.response.dto';
 import { UserEntity } from '../users/users.entity';
 import { CursorPagenameRequestDTO } from './dto/cursor-pagenate.dto';
+import { PagenateRequestDTO } from './dto/pagenate.dto';
+import { MAX_CONTENT_PER_PAGE } from './const/post.const';
 
 @Injectable()
 export class PostsService {
@@ -16,6 +18,7 @@ export class PostsService {
 	) { }
 
 	async createPost(createPostDTO: CreatePostRequestDTO, userId: UserEntity) {
+
 		const createPost = this.postsRepository.create({
 			...createPostDTO,
 			author: userId
@@ -25,12 +28,24 @@ export class PostsService {
 		return plainToInstance(CreatePostResponseDTO, result);
 	}
 
-	async getAllPosts() {
+	async getPostsList() {
 		return this.postsRepository.find({
 			relations: {
 				author: true
 			}
 		});
+	}
+
+	async getAllPosts(query: PagenateRequestDTO) {
+		// offset = page - 1 * max_content_per_page
+		const { page } = query;
+		const skip = (page - 1) * MAX_CONTENT_PER_PAGE;
+
+		return await this.postsRepository.find({
+			take: MAX_CONTENT_PER_PAGE,
+			skip
+		});
+
 	}
 
 	// 오름차순으로 정렬하는 cursor-pagenation

@@ -6,6 +6,7 @@ import { UserDecorator } from '../auth/decorator/user-info.decorator';
 import { JwtAuthGuard } from '../auth/guard/jwt.guard';
 import { CursorPagenameRequestDTO } from './dto/cursor-pagenate.dto';
 import { query } from 'express';
+import { PagenateRequestDTO } from './dto/pagenate.dto';
 
 @Controller('posts')
 @UseGuards(JwtAuthGuard)
@@ -23,9 +24,19 @@ export class PostsController {
   }
 
   @Get('list')
-  getAllPosts() {
-    return this.postsService.getAllPosts();
+  getPostsList() {
+    return this.postsService.getPostsList();
   }
+
+  // page는 default = 1
+  @Get('all')
+  getAllPosts(
+    @Query() query: PagenateRequestDTO
+  ) {
+    return this.postsService.getAllPosts(query);
+  }
+
+
 
   @Get('/cursor/pagenate')
   pagenatePosts(
