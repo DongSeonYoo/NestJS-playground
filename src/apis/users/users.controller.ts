@@ -1,15 +1,15 @@
-import { ClassSerializerInterceptor, Controller, Get, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { JwtAuthGuard } from 'src/auth/guard/jwt.guard';
-import { UserDecorator } from 'src/auth/decorator/user-info.decorator';
+import { JwtAuthGuard } from 'src/apis/auth/guard/jwt.guard';
+import { UserDecorator } from 'src/apis/auth/decorator/user-info.decorator';
 import { UserEntity } from './users.entity';
 
 @Controller('users')
+@UseGuards(JwtAuthGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
   @Get('profile')
-  @UseGuards(JwtAuthGuard)
   viewProfile(
     @UserDecorator() user: UserEntity
   ) {

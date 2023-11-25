@@ -1,11 +1,11 @@
 import { BadRequestException, Injectable, Req } from '@nestjs/common';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
-import { UsersService } from 'src/users/users.service';
+import { CreateUserDto } from 'src/apis/users/dto/create-user.dto';
+import { UsersService } from 'src/apis/users/users.service';
 import * as bcrypt from 'bcrypt';
 import { POSTGRES_ERROR_CODE } from 'src/common/database/postgres-errorcode';
 import { LoginUserDTO } from './dto/login-user.dto';
 import { JwtService } from '@nestjs/jwt';
-import { UserEntity } from 'src/users/users.entity';
+import { UserEntity } from 'src/apis/users/users.entity';
 
 @Injectable()
 export class AuthService {

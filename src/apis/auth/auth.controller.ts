@@ -1,9 +1,9 @@
 import { Body, Controller, HttpCode, Post, Res, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { CreateUserDto } from 'src/apis/users/dto/create-user.dto';
 import { LocalAuthGuard } from './guard/local.guard';
 import { UserDecorator } from './decorator/user-info.decorator';
-import { UserEntity } from 'src/users/users.entity';
+import { UserEntity } from 'src/apis/users/users.entity';
 import { Response } from 'express';
 
 @Controller('auth')
