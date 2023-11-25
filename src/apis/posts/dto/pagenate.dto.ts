@@ -1,7 +1,7 @@
-import { IsNumber, IsOptional } from "class-validator";
+import { IsNumber, IsNumberString, IsOptional } from "class-validator";
 
 export class PagenateRequestDTO {
 	@IsOptional()
-	@IsNumber()
+	@IsNumberString()
 	page?: number = 1;
 }
