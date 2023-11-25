@@ -16,11 +16,11 @@ export class PostsEntity extends BaseEntity {
 	})
 	content: string;
 
-	@ManyToOne(() => UserEntity, (user) => user.id, {
+	@ManyToOne(() => UserEntity, (user) => user.posts, {
 		nullable: false
 	})
 	@JoinColumn({
-		name: 'author_id'
+		name: 'user_id'
 	})
-	authorId: number;
+	author: UserEntity;
 }
