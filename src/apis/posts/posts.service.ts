@@ -9,6 +9,7 @@ import { UserEntity } from '../users/users.entity';
 import { CursorPagenameRequestDTO } from './dto/cursor-pagenate.dto';
 import { PagenateRequestDTO } from './dto/pagenate.dto';
 import { MAX_CONTENT_PER_PAGE } from './const/post.const';
+import { PostResponseDTO } from './dto/post-response.dto';
 
 @Injectable()
 export class PostsService {
@@ -48,11 +49,26 @@ export class PostsService {
 
 	}
 
+	async getUserPosts(userId: number, query: PagenateRequestDTO): Promise<PostResponseDTO> {
+		const { page } = query;
+		const skip = (page - 1) * MAX_CONTENT_PER_PAGE;
+		const [posts, count] = await this.postsRepository.findAndCount({
+			where: {
+				author: {
+					id: userId
+				}
+			},
+			take: MAX_CONTENT_PER_PAGE,
+			skip
+		});
+
+		return { count, posts };
+	}
+
 	// 오름차순으로 정렬하는 cursor-pagenation
 	async cursorPagenate(page: CursorPagenameRequestDTO) {
 		return this.postsRepository.find({
 			where: {
-				// 더 큰, 더 많은
 				id: MoreThan(page.where__id_more_than),
 			},
 			order: {
