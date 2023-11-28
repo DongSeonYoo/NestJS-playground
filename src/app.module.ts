@@ -7,8 +7,8 @@ import { UsersModule } from './apis/users/users.module';
 import { AuthModule } from './apis/auth/auth.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { PostsModule } from './apis/posts/posts.module';
-import { CommonModule } from './common/common.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { EventsModule } from './apis/events/events.module';
 
 @Module({
   imports: [
@@ -21,7 +21,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     UsersModule,
     AuthModule,
     PostsModule,
-    CommonModule
+    EventsModule
   ],
   controllers: [AppController],
   providers: [AppService, ConfigService, {
