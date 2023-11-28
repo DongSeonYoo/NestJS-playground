@@ -22,7 +22,7 @@ export class EventsController {
   getEventsById(
     @Param('eventId', ParseIntPipe) eventId: number
   ) {
-    return this.eventsService.getEventsById(eventId);
+    return this.eventsService.getEventsUsingQueryBuilder(eventId);
   }
 
   @Post()

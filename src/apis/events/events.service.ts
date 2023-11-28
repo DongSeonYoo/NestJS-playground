@@ -17,6 +17,11 @@ export class EventsService {
 		private readonly attendRepository: Repository<AttendeeEntity>
 	) { }
 
+	private getEventsBaseQuery() {
+		return this.eventRepository.createQueryBuilder('e')
+			.orderBy('e.id', 'DESC');
+	}
+
 	async getAllEvents() {
 		return this.eventRepository.find();
 	}
@@ -29,7 +34,7 @@ export class EventsService {
 		});
 	}
 
-	async getEventsById(eventId: number) {
+	async getEvnets(eventId: number) {
 		const findedEvents = await this.eventRepository.findOne({
 			where: {
 				id: eventId
@@ -39,6 +44,12 @@ export class EventsService {
 		if (!findedEvents) throw new NotFoundException('해당하는이벤트가 없읍니다');
 
 		return findedEvents;
+	}
+
+	async getEventsUsingQueryBuilder(eventId: number): Promise<EventsEntity> {
+		return await this.getEventsBaseQuery()
+			.andWhere('e.id = :eventId', { eventId })
+			.getOne();
 	}
 
 	async updateEvent(eventId: number, updateEventDTO: UpdateEventDTO) {
@@ -57,5 +68,9 @@ export class EventsService {
 		const deletedResult = await this.eventRepository.delete(eventId);
 
 		if (!deletedResult.affected) throw new BadRequestException('해당하는 이벤트가 존재하지 않습니다');
+
+		return {
+			message: "삭제성공요"
+		}
 	}
 }
