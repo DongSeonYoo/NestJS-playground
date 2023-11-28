@@ -6,7 +6,7 @@ import { UserEntity } from "src/apis/users/users.entity";
 @Entity({
 	name: 'attendee_tb'
 })
-export class AttendeeEntity {
+export class AttendeeEntity extends BaseEntity {
 	@PrimaryGeneratedColumn()
 	id: number;
 
@@ -14,10 +14,10 @@ export class AttendeeEntity {
 	name: string;
 
 	@ManyToOne(() => EventsEntity, (event) => event.attendees, {
-		nullable: false
+		nullable: false,
 	})
 	@JoinColumn({
-		name: 'event_id'
+		name: 'event_id',
 	})
 	event: EventsEntity;
 }
