@@ -12,3 +12,4 @@ import { PostsEntity } from './posts.entity';
   providers: [PostsService],
 })
 export class PostsModule { }
+
