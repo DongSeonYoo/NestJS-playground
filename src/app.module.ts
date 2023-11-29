@@ -9,6 +9,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import { PostsModule } from './apis/posts/posts.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EventsModule } from './apis/events/events.module';
+import { AttendeeModule } from './apis/attendee/attendee.module';
 
 @Module({
   imports: [
@@ -21,7 +22,8 @@ import { EventsModule } from './apis/events/events.module';
     UsersModule,
     AuthModule,
     PostsModule,
-    EventsModule
+    EventsModule,
+    AttendeeModule
   ],
   controllers: [AppController],
   providers: [AppService, ConfigService, {

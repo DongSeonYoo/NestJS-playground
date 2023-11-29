@@ -1,5 +1,5 @@
 import { TypeOrmModuleOptions } from "@nestjs/typeorm";
-import { AttendeeEntity } from "src/apis/events/entities/attendee.entity";
+import { AttendeeEntity } from "src/apis/attendee/entities/attendee.entity";
 import { EventsEntity } from "src/apis/events/entities/events.entity";
 import { PostsEntity } from "src/apis/posts/posts.entity";
 import { UserEntity } from "src/apis/users/users.entity";
