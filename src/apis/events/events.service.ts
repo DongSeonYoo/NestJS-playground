@@ -12,14 +12,34 @@ import { UpdateEventDTO } from './dto/update-event.dto';
 export class EventsService {
 	constructor(
 		@InjectRepository(EventsEntity)
-		private readonly eventRepository: Repository<EventsEntity>,
-		@InjectRepository(AttendeeEntity)
-		private readonly attendRepository: Repository<AttendeeEntity>
+		private readonly eventRepository: Repository<EventsEntity>
 	) { }
 
 	private getEventsBaseQuery() {
 		return this.eventRepository.createQueryBuilder('e')
 			.orderBy('e.id', 'DESC');
+	}
+
+	public getEventWithAttendeeCountQuery() {
+		return this.getEventsBaseQuery()
+			.loadRelationCountAndMap(
+				'e.attendeeCount', 'e.attendees'
+			);
+	}
+
+	async getEventById(eventId: number): Promise<EventsEntity> {
+		const event = await this.eventRepository.findOne({
+			where: {
+				id: eventId
+			},
+			relations: {
+				host: true
+			}
+		});
+		if (!event) {
+			throw new NotFoundException('이벤트가 업음');
+		}
+		return event;
 	}
 
 	async getAllEvents() {
@@ -34,20 +54,22 @@ export class EventsService {
 		});
 	}
 
-	async getEvnets(eventId: number) {
-		const findedEvents = await this.eventRepository.findOne({
-			where: {
-				id: eventId
-			}
-		});
+	/**
+	 * 이벤트 아이디를 받아서 해당하는 이벤트 정보와, 참석자 리스트를 보내줌
+	 */
+	async getEvnetsAndAttendees(eventId: number) {
+		const result = await this.eventRepository.createQueryBuilder('e')
+			.leftJoinAndSelect('e.attendees', 'a')
+			.where('e.id = :eventId', { eventId })
+			.getOne();
 
-		if (!findedEvents) throw new NotFoundException('해당하는이벤트가 없읍니다');
+		if (!result) throw new NotFoundException('해당하는 이벤트가 없습니다');
 
-		return findedEvents;
+		return result;
 	}
 
 	async getEventsUsingQueryBuilder(eventId: number): Promise<EventsEntity> {
-		return await this.getEventsBaseQuery()
+		return await this.getEventWithAttendeeCountQuery()
 			.andWhere('e.id = :eventId', { eventId })
 			.getOne();
 	}

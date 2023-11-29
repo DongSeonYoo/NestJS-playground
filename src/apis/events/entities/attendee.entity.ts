@@ -15,6 +15,7 @@ export class AttendeeEntity extends BaseEntity {
 
 	@ManyToOne(() => EventsEntity, (event) => event.attendees, {
 		nullable: false,
+		onDelete: 'CASCADE'
 	})
 	@JoinColumn({
 		name: 'event_id',

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { JwtAuthGuard } from '../auth/guard/jwt.guard';
 import { CreateEventDto } from './dto/create-event.dto';
@@ -22,7 +22,7 @@ export class EventsController {
   getEventsById(
     @Param('eventId', ParseIntPipe) eventId: number
   ) {
-    return this.eventsService.getEventsUsingQueryBuilder(eventId);
+    return this.eventsService.getEvnetsAndAttendees(eventId);
   }
 
   @Post()
@@ -34,23 +34,26 @@ export class EventsController {
   }
 
   @Put(':eventId')
-  updateEvents(
+  async updateEvents(
     @Body() updateEventDTO: UpdateEventDTO,
-    @Param('eventId', ParseIntPipe) eventId: number
+    @Param('eventId', ParseIntPipe) eventId: number,
+    @UserDecorator() user: UserEntity
   ) {
+    const event = await this.eventsService.getEventById(eventId);
+    if (event.host.id !== user.id) throw new UnauthorizedException('호스트만 수정가능');
+
     return this.eventsService.updateEvent(eventId, updateEventDTO);
   }
 
   @Delete()
-  deleteEvent(
-    @Body('eventId', ParseIntPipe) eventId: number
+  async deleteEvent(
+    @Body('eventId', ParseIntPipe) eventId: number,
+    @UserDecorator() user: UserEntity
   ) {
+    const event = await this.eventsService.getEventById(eventId);
+    if (event.host.id !== user.id) throw new UnauthorizedException('호스트만 수정가능');
+
+
     return this.eventsService.deleteEvent(eventId);
   }
-
-
-  /**
-   * put, delete 이벤트 하고,
-   * attendee 관계 연결해서 쿵짝쿵짝
-   */
 }

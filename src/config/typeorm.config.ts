@@ -13,5 +13,6 @@ export const typeORMConfig: TypeOrmModuleOptions = {
 	database: 'passport_test_db',
 	// entities: [__dirname + '../**/*.entity.{js,ts}'],
 	entities: [UserEntity, PostsEntity, EventsEntity, AttendeeEntity],
-	synchronize: true
+	synchronize: true,
+	// logging: true
 }
