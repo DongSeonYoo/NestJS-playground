@@ -4,7 +4,7 @@ import { EventsController } from './events.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from '../users/users.entity';
 import { EventsEntity } from './entities/events.entity';
-import { AttendeeEntity } from './entities/attendee.entity';
+import { AttendeeEntity } from '../attendee/entities/attendee.entity';
 
 @Module({
   imports: [

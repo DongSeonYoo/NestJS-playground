@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, UpdateResult } from 'typeorm';
 import { EventsEntity } from './entities/events.entity';
-import { AttendeeEntity } from './entities/attendee.entity';
+import { AttendeeEntity } from '../attendee/entities/attendee.entity';
 import { UserEntity } from '../users/users.entity';
 import { CreateEventDto } from './dto/create-event.dto';
 import { instanceToPlain } from 'class-transformer';
@@ -75,24 +75,38 @@ export class EventsService {
 	}
 
 	async updateEvent(eventId: number, updateEventDTO: UpdateEventDTO) {
-		const updateResult = await this.eventRepository.update(eventId, {
-			...updateEventDTO,
-		});
+		// const updateResult = await this.eventRepository.update(eventId, {
+		// 	...updateEventDTO,
+		// });
 
-		if (!updateResult.affected) throw new NotFoundException('해당하는 이벤트가 없읍니다');
+		// if (!updateResult.affected) throw new NotFoundException('해당하는 이벤트가 없읍니다');
 
-		return {
-			message: "수정성공요"
-		}
+		// return {
+		// 	message: "수정성공요"
+		// }
+		await this.getEventById(eventId);
+
+		return this.eventRepository.createQueryBuilder('e')
+			.update()
+			.set({ ...updateEventDTO })
+			.where('id = :eventId', { eventId })
+			.execute();
 	}
 
 	async deleteEvent(eventId: number) {
-		const deletedResult = await this.eventRepository.delete(eventId);
+		// const deletedResult = await this.eventRepository.delete(eventId);
 
-		if (!deletedResult.affected) throw new BadRequestException('해당하는 이벤트가 존재하지 않습니다');
+		// if (!deletedResult.affected) throw new BadRequestException('해당하는 이벤트가 존재하지 않습니다');
 
-		return {
-			message: "삭제성공요"
-		}
+		// return {
+		// 	message: "삭제성공요"
+		// }
+
+		await this.getEventById(eventId);
+
+		return this.eventRepository.createQueryBuilder('e')
+			.delete()
+			.where('e.id = :id', { eventId })
+			.execute();
 	}
 }

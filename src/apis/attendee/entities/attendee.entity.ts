@@ -1,6 +1,6 @@
 import { BaseEntity } from "src/common/entities/base.entity";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { EventsEntity } from "./events.entity";
+import { EventsEntity } from "../../events/entities/events.entity";
 import { UserEntity } from "src/apis/users/users.entity";
 
 @Entity({

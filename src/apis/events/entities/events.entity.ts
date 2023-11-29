@@ -1,6 +1,6 @@
 import { BaseEntity } from "src/common/entities/base.entity";
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
-import { AttendeeEntity } from "./attendee.entity";
+import { AttendeeEntity } from "../../attendee/entities/attendee.entity";
 import { UserEntity } from "src/apis/users/users.entity";
 import { Expose } from "class-transformer";
 

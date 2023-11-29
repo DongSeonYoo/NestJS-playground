@@ -42,7 +42,7 @@ export class EventsController {
     const event = await this.eventsService.getEventById(eventId);
     if (event.host.id !== user.id) throw new UnauthorizedException('호스트만 수정가능');
 
-    return this.eventsService.updateEvent(eventId, updateEventDTO);
+    this.eventsService.updateEvent(eventId, updateEventDTO);
   }
 
   @Delete()
