@@ -10,8 +10,13 @@ export class AttendeeEntity extends BaseEntity {
 	@PrimaryGeneratedColumn()
 	id: number;
 
-	@Column()
-	name: string;
+	@ManyToOne(() => UserEntity, (user) => user.attendees, {
+		nullable: false
+	})
+	@JoinColumn({
+		name: 'user_id'
+	})
+	user: UserEntity
 
 	@ManyToOne(() => EventsEntity, (event) => event.attendees, {
 		nullable: false,

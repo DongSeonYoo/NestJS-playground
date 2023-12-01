@@ -1,0 +1,1 @@
+export const MAX_ATTENDEE_COUNT_PER_PAGE = 10;

@@ -4,6 +4,7 @@ import { AttendeeEntity } from './entities/attendee.entity';
 import { EventsModule } from '../events/events.module';
 import { AttendeeController } from './attendee.controller';
 import { AttendeeService } from './attendee.service';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { AttendeeService } from './attendee.service';
       AttendeeEntity,
     ]),
     EventsModule,
+    UsersModule
   ],
   controllers: [AttendeeController],
   providers: [AttendeeService]
