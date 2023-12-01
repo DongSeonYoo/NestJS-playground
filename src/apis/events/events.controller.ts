@@ -22,7 +22,14 @@ export class EventsController {
   getEventsById(
     @Param('eventId', ParseIntPipe) eventId: number
   ) {
-    return this.eventsService.getEvnetsAndAttendees(eventId);
+    return this.eventsService.getEventsUsingQueryBuilder(eventId);
+  }
+
+  @Get('/user/:userId')
+  getEventOrganizedByUserId(
+    @Param('userId', ParseIntPipe) userId: number
+  ) {
+    return this.eventsService.getEventOrganizedByUserId(userId);
   }
 
   @Post()

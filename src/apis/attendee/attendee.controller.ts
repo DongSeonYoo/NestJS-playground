@@ -1,12 +1,12 @@
 import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
 import { AttendeeService } from './attendee.service';
 
-@Controller('/events')
+@Controller('/attendee')
 export class AttendeeController {
   constructor(private readonly attendeeService: AttendeeService) { }
 
-  @Get(':eventId/attendees')
-  getAttendeeAllByEvent(
+  @Get('/list/:eventId')
+  getAttendeeListByEventId(
     @Param('eventId', ParseIntPipe) eventId: number
   ) {
     return this.attendeeService.getAttendeeAllByEvent(eventId);

@@ -5,8 +5,15 @@ import { ConfigService } from '@nestjs/config';
 export class AppService {
   constructor(
     private readonly configService: ConfigService
-  ) { }
+  ) {
+  }
   getHello(): string {
-    return this.configService.get('MESSAGE');
+    const testMessage: string = process.env.MESSAGE;
+
+    return testMessage;
+  }
+
+  testFromConfigService() {
+    return this.configService.get('CONFIG_SERVICE_TEST');
   }
 }

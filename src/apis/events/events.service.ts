@@ -1,30 +1,35 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, UpdateResult } from 'typeorm';
+import { Repository } from 'typeorm';
 import { EventsEntity } from './entities/events.entity';
-import { AttendeeEntity } from '../attendee/entities/attendee.entity';
 import { UserEntity } from '../users/users.entity';
 import { CreateEventDto } from './dto/create-event.dto';
-import { instanceToPlain } from 'class-transformer';
 import { UpdateEventDTO } from './dto/update-event.dto';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class EventsService {
 	constructor(
 		@InjectRepository(EventsEntity)
-		private readonly eventRepository: Repository<EventsEntity>
-	) { }
+		private readonly eventRepository: Repository<EventsEntity>,
+		private readonly userService: UsersService
+	) {
+	}
 
 	private getEventsBaseQuery() {
 		return this.eventRepository.createQueryBuilder('e')
 			.orderBy('e.id', 'DESC');
 	}
 
-	public getEventWithAttendeeCountQuery() {
+	private getEventWithAttendeeCountQuery() {
 		return this.getEventsBaseQuery()
 			.loadRelationCountAndMap(
 				'e.attendeeCount', 'e.attendees'
 			);
+	}
+
+	async getAllEvents() {
+		return this.eventRepository.find();
 	}
 
 	async getEventById(eventId: number): Promise<EventsEntity> {
@@ -40,10 +45,6 @@ export class EventsService {
 			throw new NotFoundException('이벤트가 업음');
 		}
 		return event;
-	}
-
-	async getAllEvents() {
-		return this.eventRepository.find();
 	}
 
 	// 생성된 이벤트 아이디 리턴
@@ -69,21 +70,23 @@ export class EventsService {
 	}
 
 	async getEventsUsingQueryBuilder(eventId: number): Promise<EventsEntity> {
-		return await this.getEventWithAttendeeCountQuery()
-			.andWhere('e.id = :eventId', { eventId })
-			.getOne();
+		const query = this.getEventWithAttendeeCountQuery()
+			.andWhere('e.id = :eventId', { eventId });
+		// console.log(query.getQuery())
+
+		return await query.getOne();
+	}
+
+	// 유저의 아이디를 받아서 해당하는 유저가 주최한 이벤트들을 가져옴
+	async getEventOrganizedByUserId(userId: number): Promise<EventsEntity[]> {
+		await this.userService.getUserById(userId);
+
+		return this.getEventsBaseQuery()
+			.where('e.host_id = :userId', { userId })
+			.getMany();
 	}
 
 	async updateEvent(eventId: number, updateEventDTO: UpdateEventDTO) {
-		// const updateResult = await this.eventRepository.update(eventId, {
-		// 	...updateEventDTO,
-		// });
-
-		// if (!updateResult.affected) throw new NotFoundException('해당하는 이벤트가 없읍니다');
-
-		// return {
-		// 	message: "수정성공요"
-		// }
 		await this.getEventById(eventId);
 
 		return this.eventRepository.createQueryBuilder('e')
@@ -94,14 +97,6 @@ export class EventsService {
 	}
 
 	async deleteEvent(eventId: number) {
-		// const deletedResult = await this.eventRepository.delete(eventId);
-
-		// if (!deletedResult.affected) throw new BadRequestException('해당하는 이벤트가 존재하지 않습니다');
-
-		// return {
-		// 	message: "삭제성공요"
-		// }
-
 		await this.getEventById(eventId);
 
 		return this.eventRepository.createQueryBuilder('e')

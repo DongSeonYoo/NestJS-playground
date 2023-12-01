@@ -22,11 +22,6 @@ export class PostsController {
     return this.postsService.createPost(createPostDTO, userId);
   }
 
-  @Get('list')
-  getPostsList() {
-    return this.postsService.getPostsList();
-  }
-
   // page는 default = 1
   @Get('all')
   getAllPosts(

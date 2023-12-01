@@ -29,14 +29,6 @@ export class PostsService {
 		return plainToInstance(CreatePostResponseDTO, result);
 	}
 
-	async getPostsList() {
-		return this.postsRepository.find({
-			relations: {
-				author: true
-			}
-		});
-	}
-
 	async getAllPosts(query: PagenateRequestDTO) {
 		// offset = page - 1 * max_content_per_page
 		const { page } = query;
@@ -44,7 +36,8 @@ export class PostsService {
 
 		return await this.postsRepository.find({
 			take: MAX_CONTENT_PER_PAGE,
-			skip
+			skip,
+			relations: ['author']
 		});
 
 	}

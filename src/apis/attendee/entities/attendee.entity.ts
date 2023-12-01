@@ -1,7 +1,7 @@
 import { BaseEntity } from "src/common/entities/base.entity";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { EventsEntity } from "../../events/entities/events.entity";
 import { UserEntity } from "src/apis/users/users.entity";
+import { EventsEntity } from "src/apis/events/entities/events.entity";
 
 @Entity({
 	name: 'attendee_tb'

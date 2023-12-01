@@ -29,6 +29,9 @@ export class UserEntity extends BaseEntity {
 	password: string;
 
 	@OneToMany(() => EventsEntity, (event) => event.host)
+	@Exclude({
+		toPlainOnly: true
+	})
 	hosts: EventsEntity[];
 
 	@OneToMany(() => PostsEntity, (posts) => posts.author)
