@@ -1,10 +1,22 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserModel } from 'src/users/entities/User.entities';
-import { JWT_SECRET } from './const/auth.const';
+import { HASH_ROUND, JWT_SECRET } from './const/auth.const';
+import { UsersService } from 'src/users/users.service';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
+	/**
+	 * 1) 사용자가 로그인 또는 회원가입을 진행하면
+	 * 	accessToken과 refreshtoken을 발급받는다
+	 * 2) 로그인 할때는 basic 토큰과 함꼐 욫ㅇ을 보낸다
+	 * 	basic token은 'email:password'를 base64로 인코딩한 형태.
+	 *  {authorization: 'Basic {token}'}
+	 * 3) 아무나 접근 할 수 없는 정보를 접근할때는
+	 * 	accessToken을 header에 추가해서 요청과 함께 보낸다
+	 */
+
 	/**
 	 * TODO
 	 * 1. registerWithEmail // 이메일로 회원가입 email, nickname, password를 받아서, 생성이 완료 되면 accessToken과 refreshToken 발급. (회원 가입 후 바로 로그인시켜줌)
@@ -17,21 +29,108 @@ export class AuthService {
 	 * 	5-3: 모두 통과되면 사용자 정보 반환
 	 */
 
-	constructor(private readonly jwtService: JwtService) { }
+	constructor(
+		private readonly jwtService: JwtService,
+		private readonly usersService: UsersService,
+	) { }
 
 	/**
 	 * payload에 들어갈 정보?
 	 * 1. sub (id) pk라고생각
 	 * 2. type : 'accessToken' | 'refreshToken'
 	 */
-	// signToken(user: Pick<UserModel, 'email' | 'id'>, isRefreshToken: Boolean) {
-	// 	const payload = {
-	// 		id: user.id,
-	// 		email: user.email,
-	// 		type: isRefreshToken ? true : false
-	// 	};
-	// 	return this.jwtService.sign(payload, {
-	// 		// secret: JWT_SECRET
-	// 	})
-	// }
+	signToken(user: Pick<UserModel, 'email' | 'id'>, isRefreshToken: Boolean) {
+		const payload = {
+			id: user.id,
+			email: user.email,
+			type: isRefreshToken ? true : false
+		};
+		return this.jwtService.sign(payload, {
+			secret: JWT_SECRET,
+			// second
+			expiresIn: isRefreshToken ? 3600 : 300
+		})
+	}
+
+	loginUsers(user: Pick<UserModel, 'email' | 'id'>) {
+		return {
+			accessToken: this.signToken(user, false),
+			refreshToken: this.signToken(user, true),
+		}
+	}
+
+	async authenticateWithEmailAndPassword(user: Pick<UserModel, 'email' | 'password'>) {
+		const existingUser = await this.usersService.getUserByEmail(user.email);
+		if (!existingUser) throw new UnauthorizedException("존재하지 않는 사용자입니다");
+
+		const passwordMatch = await bcrypt.compare(user.password, existingUser.password);
+		if (!passwordMatch) {
+			throw new UnauthorizedException('비밀번호가 틀렸습니다');
+		}
+		return existingUser;
+	}
+
+	async loginWithEmail(user: Pick<UserModel, 'email' | 'password'>) {
+		const existingUser = await this.authenticateWithEmailAndPassword(user);
+		return this.loginUsers(existingUser);
+	}
+
+	async registerWithEmail(user: Pick<UserModel, 'nickname' | 'email' | 'password'>) {
+		const hasing = await bcrypt.hash(
+			user.password,
+			HASH_ROUND,
+		);
+
+		const newUSer = await this.usersService.createUser({
+			...user,
+			password: hasing
+		});
+		return this.loginUsers(newUSer);
+	}
+
+	/**
+	 * 
+	 */
+	extractTokenFromHeader(haeder: string, isBearer: boolean) {
+		const splitToken = haeder.split(' ');
+		const prefix = isBearer ? 'Bearer' : 'Basic';
+		if (splitToken.length !== 2 || splitToken[0] !== prefix) throw new UnauthorizedException('잘못된 토큰입니다');
+
+		const token = splitToken[1];
+		return token;
+	}
+
+	decodedBasicToken(base64String: string) {
+		const decoded = Buffer.from(base64String, 'base64').toString('utf-8');
+		const split = decoded.split(':');
+
+		if (split.length !== 2) {
+			throw new UnauthorizedException('잘못된 유형의 토큰입니다?');
+		}
+		const email = split[0];
+		const password = split[1];
+
+		return {
+			email,
+			password
+		}
+	}
+
+	verifyToken(token: string) {
+		return this.jwtService.verify(token, {
+			secret: JWT_SECRET,
+		});
+	}
+
+	rotateToken(token: string, isRefreshToken: boolean) {
+		const decoded = this.jwtService.verify(token, {
+			secret: JWT_SECRET,
+		});
+		if (decoded.type !== 'refresh') {
+			throw new UnauthorizedException("토큰 재발급은 refresh token으로만 가능");
+		}
+		return this.signToken({
+			...decoded,
+		}, isRefreshToken);
+	}
 }

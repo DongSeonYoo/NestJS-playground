@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put } from '@nestjs/common';
+import { Body, ClassSerializerInterceptor, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Post, Put, UseInterceptors } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { UsersService } from 'src/users/users.service';
 
@@ -28,14 +28,14 @@ export class PostsController {
 
   @Get('/user-id/:userId')
   getPostByUserIdx(
-    @Param('userId') userId: number
+    @Param('userId', ParseIntPipe) userId: number
   ) {
     return this.postsService.getPostByUserIdx(userId);
   }
 
   @Get('/:postId')
   getPostByPostId(
-    @Param('postId') postId: number
+    @Param('postId', ParseIntPipe) postId: number
   ) {
     return this.postsService.getPostByIdx(postId);
   }

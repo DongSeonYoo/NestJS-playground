@@ -11,6 +11,7 @@ import { PostsModel } from 'src/posts/entities/Post.entity';
       UserModel,
     ])
   ],
+  exports: [UsersService],
   controllers: [UsersController],
   providers: [UsersService],
 })

@@ -1,3 +1,4 @@
+import { Exclude } from "class-transformer";
 import { BaseEntity } from "src/common/BaseEntity";
 import { ROLE } from "src/common/Role.enum";
 import { PostsModel } from "src/posts/entities/Post.entity";
@@ -31,6 +32,7 @@ export class UserModel extends BaseEntity {
 	email: string;
 
 	@Column()
+	@Exclude()
 	password: string;
 
 	@OneToMany(() => PostsModel, (post) => post.author)
